@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Quicksand:wght@300;400;500;600;700&family=Rubik+Glitch&display=swap');
+
+body {
+    background-image: url(./images/ultraWhiteGeometricBackground.png);
+    background-repeat: none;
+    background-position: center;
+    font-family: Oswald;
+}
+
+/* This styles the entire header, giving it some space and a cool background */
+header {
+    background-color: #333; /* Dark background for a cool look */
+    padding: 10px 0; /* Some padding to give it space */
+    text-align: center; /* Centers the nav in the header */
+}
+
+/* This styles the nav element */
+nav {
+    margin: 0; /* Centers the nav */
+    display: inline-flex; /* Aligns the nav items horizontally */
+    align-content: space-between;
+}
+
+/* This removes the default list styling */
+nav ul {
+    list-style-type: none; /* Removes bullet points */
+    padding: 0; /* Removes default padding */
+    margin: 0; /* Removes default margin */
+}
+
+/* This styles each list item */
+nav ul li {
+    display: inline; /* Displays the list items inline */
+    margin-right: 20px; /* Adds some space between the items */
+    color: white; /* Light text color for contrast */
+    font-size: 18px; /* Larger font size for better readability */
+}
+
+/* Change the cursor to a pointer to indicate it's clickable */
+nav ul li:hover {
+    cursor: pointer;
+    color: #ddd; /* Lighten the color a bit when hovered */
+}
+
+h1 {
+    color: black;
+}
