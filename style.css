@@ -1,24 +1,53 @@
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Quicksand:wght@300;400;500;600;700&family=Rubik+Glitch&display=swap');
+/*
 
+Table of contents
+
+1. Global stuff 
+2. Header stylez
+3. Hot body 
+4. Into feet footer stylez
+
+
+*/
+
+
+
+/* 1. Global stuff */
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Quicksand:wght@300;400;500;600;700&family=Rubik+Glitch&family=Rubik:wght@900&display=swap');
+ 
 body {
-    background-image: url(./images/ultraWhiteGeometricBackground.png);
+    background-color: #333; /* Dark background for a cool look */
+    background-image: url(./images/abstractGeometricBackgroundWithTranslucentBlack.png);
     background-repeat: none;
-    background-position: center;
+    background-position:center;
     font-family: Oswald;
+    color: whitesmoke;
 }
+
+
+
+/* 2. Header stylez */ 
 
 /* This styles the entire header, giving it some space and a cool background */
 header {
-    background-color: #333; /* Dark background for a cool look */
     padding: 10px 0; /* Some padding to give it space */
     text-align: center; /* Centers the nav in the header */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    font-size: 18px; /* Larger font size for better readability */
+    /* background-color: #333; /* Dark background for a cool look */
+}
+
+header div {
+    font-family: Rubik Glitch;
+    font-size: 35px;
 }
 
 /* This styles the nav element */
 nav {
     margin: 0; /* Centers the nav */
-    display: inline-flex; /* Aligns the nav items horizontally */
-    align-content: space-between;
+    display: inline-block; /* Aligns the nav items horizontally */
 }
 
 /* This removes the default list styling */
@@ -33,7 +62,6 @@ nav ul li {
     display: inline; /* Displays the list items inline */
     margin-right: 20px; /* Adds some space between the items */
     color: white; /* Light text color for contrast */
-    font-size: 18px; /* Larger font size for better readability */
 }
 
 /* Change the cursor to a pointer to indicate it's clickable */
@@ -42,6 +70,10 @@ nav ul li:hover {
     color: #ddd; /* Lighten the color a bit when hovered */
 }
 
-h1 {
-    color: black;
+
+
+/* 3. Hot body */
+
+#introText {
+    margin: 25% 10% 10% 5%;
 }
