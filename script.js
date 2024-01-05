@@ -1,16 +1,32 @@
 class Blobby {
     constructor() {
+        // blobby details
         this.headHeight = 50;
         this.headWidth = 60;
         this.eyeSize = 15;  // Size of the eyes
         this.eyeSpace = 5;  // Space between the eyes
-        this.attentionTimestep = 2000;
+        // attention details 
+        this.attentionTimestep = 1000;
+        this.currentAttentionItem = "mouse";
+        this.currentAttentionOptions = [
+            "mouse", "nav"
+        ]
+        const navElement = document.getElementById("nav").getBoundingClientRect();
         this.attentionItem = {
             mouse: {
                 x: 100,
                 y: 100
+            },
+            nav: {
+                left: navElement.left,
+                top: navElement.top,
+                width: navElement.width,
+                height: navElement.height,
+                x: navElement.left + navElement.height / 2,
+                y: navElement.top + navElement.width / 2
             }
         }
+        console.log(this.attentionItem.nav);
         this.createCreature();
         this.addStyles();
         this.storeMousePosListener();
@@ -68,7 +84,7 @@ class Blobby {
             background-color: black; 
             border-radius: 50%; 
             top: ${eyeOffsetY}px;
-            transition: all 10ms linear;
+            transition: all 35ms linear;
         `;
         const eyeStyleLeft = `
             ${eyeStyle}
@@ -95,22 +111,22 @@ class Blobby {
             const centerY = top + height / 2;
 
             // attention item variables
-            const currentAttentionItem = "mouse";
-            const deltaX = this.attentionItem[currentAttentionItem].x - centerX;
-            const deltaY = this.attentionItem[currentAttentionItem].y - centerY;
+            const deltaX = this.attentionItem[this.currentAttentionItem].x - centerX;
+            const deltaY = this.attentionItem[this.currentAttentionItem].y - centerY;
             const angle = Math.atan2(deltaY, deltaX);
             const eyeOffset = Math.min(
                 ((this.headWidth - 5) / 4),   //if mouse is outside of the head, the eyes only go 5px from the edge of the head
                 Math.hypot(deltaX, deltaY) / 10     //within the head the eyes look at the mouse
             );
+            
+            // Adjust eye movement relative to the head size
             const eyeX = eyeOffset * Math.cos(angle);
             const eyeY = eyeOffset * Math.sin(angle);
-
-            // Adjust eye movement relative to the head size
             this.leftEye.style.transform = `translate(${eyeX}px, ${eyeY}px)`;
             this.rightEye.style.transform = `translate(${eyeX}px, ${eyeY}px)`;
         }
 
+        // move eyes every 10ms
         setInterval(actualMovingOfTheEyes, 10);
     }
 
@@ -123,12 +139,39 @@ class Blobby {
 
     moveAttention() {
         const intervalId = setInterval(() => {
-            this.currentAttentionItem = "mouse";
+            const shouldWeMoveAttention = () => {
+                // options of what to change to should not include current item
+                const optionsToChangeAttentionTo = [];
+                this.currentAttentionOptions.forEach( (option) => {
+                    if (option != this.currentAttentionItem) {
+                        optionsToChangeAttentionTo.push(option)
+                    }
+                });
+                
+                // chance to change
+                const randomNumberToSeeIfAttentionShifts = Math.ceil(Math.random() * 6); 
+                if (randomNumberToSeeIfAttentionShifts === 6 ) {
+                    // change attention item
+                    const randomNumberToChooseOption = Math.floor(Math.random() * optionsToChangeAttentionTo.length);
+                    this.currentAttentionItem = optionsToChangeAttentionTo[randomNumberToChooseOption];
+                    
+                    //change transitions to be appropriate
+                    this.leftEye.style.transition = "all 750ms ease-in-out";
+                    this.rightEye.style.transition = "all 750ms ease-in-out";
+                    setTimeout( () => {
+                        this.leftEye.style.transition = "all 100ms linear";
+                        this.rightEye.style.transition = "all 100ms linear";
+                    }, 750);
+                }
+            }
+
+            shouldWeMoveAttention();
+
         }, this.attentionTimestep);
     }
 
     
 }
 
-// Create and display the creature
+// Create and display blobby 
 new Blobby();
