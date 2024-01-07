@@ -1,16 +1,18 @@
 class Blobby {
     constructor() {
+
         // blobby details
         this.headHeight = 50;
         this.headWidth = 60;
+        this._top = Math.floor(screen.width * 0.85);
+        this._left = screen.height - 20;
         this.eyeSize = 15;  // Size of the eyes
         this.eyeSpace = 5;  // Space between the eyes
+
         // attention details 
-        this.attentionTimestep = 1000;
+        this.attentionTimestep = 6000;
         this.currentAttentionItem = "mouse";
-        this.currentAttentionOptions = [
-            "mouse", "nav"
-        ]
+        this.currentAttentionOptions = ["mouse", "nav"];
         const navElement = document.getElementById("nav").getBoundingClientRect();
         this.attentionItem = {
             mouse: {
@@ -27,13 +29,16 @@ class Blobby {
             }
         }
         console.log(this.attentionItem.nav);
-        this.createCreature();
-        this.addStyles();
-        this.storeMousePosListener();
-        this.moveAttention();
-        this.moveEyes();
+
+        // functions to make blobby work
+        this.createCreature();  // creates the blobby divs
+        this.addStyles();   // adds the styles to blobbys divs
+        this.storeMousePosListener();   // stores the mouse coords on the class
+        this.moveEyes();    // constantly moves eyes to the direciton of where the attention item is
+        this.moveAttention();   //moves attention randomly to different items on the screen 
     }
 
+    // creates the blobby divs
     createCreature() {
         this.blobbyHead = document.createElement('div');
         this.blobbyBody = document.createElement('div');
@@ -51,6 +56,7 @@ class Blobby {
         this.rightEye.id = 'rightEye';
     }
 
+    // adds the styles to blobbys divs
     addStyles() {
         const headStyle = `
             position: absolute; 
@@ -101,8 +107,15 @@ class Blobby {
         this.rightEye.style.cssText = eyeStyleRight;
     }
 
-    
+    // stores the mouse coords on the class
+    storeMousePosListener() {
+        document.addEventListener('mousemove', (event) => {
+            this.attentionItem.mouse.x = event.clientX;
+            this.attentionItem.mouse.y = event.clientY;
+        });
+    }
 
+    // constantly moves eyes to the direciton of where the attention item is
     moveEyes(event) {
         const actualMovingOfTheEyes = () => {
             // bobby variable
@@ -130,46 +143,44 @@ class Blobby {
         setInterval(actualMovingOfTheEyes, 10);
     }
 
-    storeMousePosListener() {
-        document.addEventListener('mousemove', (event) => {
-            this.attentionItem.mouse.x = event.clientX;
-            this.attentionItem.mouse.y = event.clientY;
-        });
-    }
-
     moveAttention() {
-        const intervalId = setInterval(() => {
-            const shouldWeMoveAttention = () => {
-                // options of what to change to should not include current item
-                const optionsToChangeAttentionTo = [];
-                this.currentAttentionOptions.forEach( (option) => {
-                    if (option != this.currentAttentionItem) {
-                        optionsToChangeAttentionTo.push(option)
-                    }
-                });
-                
-                // chance to change
-                const randomNumberToSeeIfAttentionShifts = Math.ceil(Math.random() * 6); 
-                if (randomNumberToSeeIfAttentionShifts === 6 ) {
-                    // change attention item
-                    const randomNumberToChooseOption = Math.floor(Math.random() * optionsToChangeAttentionTo.length);
-                    this.currentAttentionItem = optionsToChangeAttentionTo[randomNumberToChooseOption];
-                    
-                    //change transitions to be appropriate
-                    this.leftEye.style.transition = "all 750ms ease-in-out";
-                    this.rightEye.style.transition = "all 750ms ease-in-out";
-                    setTimeout( () => {
-                        this.leftEye.style.transition = "all 100ms linear";
-                        this.rightEye.style.transition = "all 100ms linear";
-                    }, 750);
-                }
+    // randomly determine where blobby is paying attention to
+    const shouldWeMoveAttention = () => {
+        // options of what to change to should not include current item
+        const optionsToChangeAttentionTo = [];
+        this.currentAttentionOptions.forEach( (option) => {
+            if (option != this.currentAttentionItem) {
+                optionsToChangeAttentionTo.push(option)
             }
-
-            shouldWeMoveAttention();
-
-        }, this.attentionTimestep);
+        });
+        
+        // chance to change
+        const randomNumberToSeeIfAttentionShifts = Math.ceil(Math.random() * 2); 
+        if (randomNumberToSeeIfAttentionShifts === 6 ) {
+            // change attention item
+            const randomNumberToChooseOption = Math.floor(Math.random() * optionsToChangeAttentionTo.length);
+            this.currentAttentionItem = optionsToChangeAttentionTo[randomNumberToChooseOption];
+            
+            //change transitions to be appropriate
+            this.leftEye.style.transition = "all 750ms ease-in-out";
+            this.rightEye.style.transition = "all 750ms ease-in-out";
+            setTimeout( () => {
+                this.leftEye.style.transition = "all 100ms linear";
+                this.rightEye.style.transition = "all 100ms linear";
+            }, 750);
+        }
     }
 
+    // check if we should randomly change attention every attention timestep
+    const intervalId = setInterval(
+        shouldWeMoveAttention, this.attentionTimestep);
+    }
+
+    jump() {
+        
+
+
+    }
     
 }
 
