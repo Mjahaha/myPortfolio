@@ -15,6 +15,7 @@ class Blobby {
         this.groundLevel = 0; // Initialize the ground level
         this.gravityTimestep = 100;
         this.currentActualHeight = 0;
+        this.isAboveGroundLevel = true;
 
         // attention details 
         this.attentionTimestep = 6000;
@@ -73,16 +74,38 @@ class Blobby {
     set y(input) {
         if (isNaN(input)) { return }
         this.recalculateHeight();
-        const screenWidth = window.innerWidth;
+        // necessary variables 
         const maxY = this.groundLevel - this.currentActualHeight / 2 + 20; 
-        if (input < maxY) {
+        const currentY = this.y;
+
+        // set isAboveGroundLevel 
+        if (currentY > this.groundLevel) 
+        { this.isAboveGroundLevel = false; }
+        else { this.isAboveGroundLevel = true }
+
+        // set isOnGround
+        if (this.isAboveGroundLevel && input > this.groundLevel) 
+        { this.isOnGround = true; }
+        else { this.isOnGround = false }
+
+        // if starting above groundLevel 
+        if (this.isAboveGroundLevel) {
+            if (input < maxY) {
+                this._y = input;
+            } else {
+                this._y = maxY;
+                this.velocityY = 0;
+                this.isOnGround = true;
+                this.top = this._y - this.height / 2;
+            }
+        } else {    // if starting below groundLevel
+            this.velocityY = this.velocityY - 15;
+            if (this.velocityY < - 70) { this.velocityY = -70 }
             this._y = input;
-        } else {
-            this._y = maxY;
-            this.velocityY = 0;
-            this.isOnGround = true;
         }
         this.top = this._y - this.height / 2;
+
+        
     }
     get top() {
         return this._top;
@@ -309,7 +332,7 @@ class Blobby {
                 this.velocityY += this.gravity; // Increase velocity by gravity
                 this.y = this.y + this.velocityY; // Use the setter to update position
     
-                if (this.isOnGround) { // Check if Blobby has hit the ground after setting top
+                if (this.isOnGround && this.isAboveGroundLevel) { // Check if Blobby has hit the ground after setting top
                     squash(); // Squash Blobby on impact
                 } else {
                     stretch(); // Stretch Blobby while falling
