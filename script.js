@@ -2,12 +2,18 @@ class Blobby {
     constructor() {
 
         // blobby details
-        this.headHeight = 50;
-        this.headWidth = 60;
-        this._top = Math.floor(screen.width * 0.85);
-        this._left = screen.height - 20;
+        this.height = 50;
+        this.width = 60;
+        this.headHeight = this.height;
+        this.headWidth = this.width;
+        this._top = 0;
+        this._left = 0;
+        this._x = Math.floor(window.innerWidth * 0.5);
+        this._y = 200;
         this.eyeSize = 15;  // Size of the eyes
         this.eyeSpace = 5;  // Space between the eyes
+        this.groundLevel = 0; // Initialize the ground level
+        this.gravityTimestep = 100;
 
         // attention details 
         this.attentionTimestep = 6000;
@@ -28,14 +34,66 @@ class Blobby {
                 y: navElement.top + navElement.width / 2
             }
         }
-        console.log(this.attentionItem.nav);
 
-        // functions to make blobby work
+        // gravity details 
+        this.gravity = 10; // The rate at which Blobby accelerates towards the ground
+        this.velocityY = 0; // The current velocity of Blobby's fall
+        this.isOnGround = false; // Flag to check if Blobby is on the ground
+
+        // methods to make blobby work
         this.createCreature();  // creates the blobby divs
         this.addStyles();   // adds the styles to blobbys divs
         this.storeMousePosListener();   // stores the mouse coords on the class
         this.moveEyes();    // constantly moves eyes to the direciton of where the attention item is
         this.moveAttention();   //moves attention randomly to different items on the screen 
+        this.trackGroundLevel();    // Call the method to set and keep track of the bottom Y value
+        this.applyGravity(); // Apply gravity to Blobby
+        console.log(this);
+    }
+    get x() {
+        return this._x;
+    }
+    set x(input) {
+        if (isNaN(input)) { return }
+        const maxX = this.groundLevel - this.height / 2;
+        if (input < maxX) {
+            this._x = input;
+            this.isOnGround = false; // Blobby is not on the ground
+        } else {
+            this._x = maxX;
+            this.isOnGround = true; // Blobby is on the ground
+        }
+        this.left = this._x - this.height / 2; // Update left position based on x
+    }
+    get y() {
+        return this._y;
+    }
+    set y(input) {
+        if (isNaN(input)) { return }
+        const screenWidth = window.innerWidth;
+        const maxY = this.groundLevel - this.height / 2; 
+        if (input < maxY) {
+            this._y = input;
+        } else {
+            this._y = maxY;
+            this.velocityY = 0;
+            this.isOnGround = true;
+        }
+        this.top = this._y - this.height / 2;
+    }
+    get top() {
+        return this._top;
+    }
+    set top(input) {
+        this._top = input;
+        this.blobbyBody.style.top = `${this._top}px`;
+    }
+    get left() {
+        return this._left;
+    }
+    set left(input) {
+        this._left = input;
+        this.blobbyBody.style.left = `${this._left}px`;
     }
 
     // creates the blobby divs
@@ -60,8 +118,8 @@ class Blobby {
     addStyles() {
         const headStyle = `
             position: absolute; 
-            height: ${this.headHeight}px; 
-            width: ${this.headWidth}px; 
+            height: ${this.height}px; 
+            width: ${this.width}px; 
             background-color: lightblue; 
             border-radius: 50%; 
             top: -10%; 
@@ -72,16 +130,18 @@ class Blobby {
 
         const bodyStyle = `
             position: absolute; 
-            height: ${this.headHeight * 1.5}px; 
-            width: ${this.headWidth * 1.5}px; 
+            height: ${this.height * 1.8}px; 
+            width: ${this.width * 1.5}px; 
             background-color: lightblue; 
             border-radius: 50%; 
             z-index: -1;
+            top: ${this.y}px;
+            left: ${this.x}px;
         `
 
         // Adjust eye positions to be proportional to head size
-        const eyeOffsetX = (this.headWidth - this.eyeSize) / 2; 
-        const eyeOffsetY = (this.headHeight - this.eyeSize) / 2; 
+        const eyeOffsetX = (this.width - this.eyeSize) / 2; 
+        const eyeOffsetY = (this.height - this.eyeSize) / 2; 
 
         const eyeStyle = `
             position: absolute; 
@@ -128,7 +188,7 @@ class Blobby {
             const deltaY = this.attentionItem[this.currentAttentionItem].y - centerY;
             const angle = Math.atan2(deltaY, deltaX);
             const eyeOffset = Math.min(
-                ((this.headWidth - 5) / 4),   //if mouse is outside of the head, the eyes only go 5px from the edge of the head
+                ((this.width - 5) / 4),   //if mouse is outside of the head, the eyes only go 5px from the edge of the head
                 Math.hypot(deltaX, deltaY) / 10     //within the head the eyes look at the mouse
             );
             
@@ -156,7 +216,7 @@ class Blobby {
         
         // chance to change
         const randomNumberToSeeIfAttentionShifts = Math.ceil(Math.random() * 2); 
-        if (randomNumberToSeeIfAttentionShifts === 6 ) {
+        if (randomNumberToSeeIfAttentionShifts === 1 ) {
             // change attention item
             const randomNumberToChooseOption = Math.floor(Math.random() * optionsToChangeAttentionTo.length);
             this.currentAttentionItem = optionsToChangeAttentionTo[randomNumberToChooseOption];
@@ -176,8 +236,81 @@ class Blobby {
         shouldWeMoveAttention, this.attentionTimestep);
     }
 
+    recalculateHeight() {
+        const top = 1;
+    }
+
+    trackGroundLevel() {
+        const updateGroundLevel = () => {
+            this.groundLevel = window.innerHeight + window.scrollY;
+            console.log(this.groundLevel);
+            if (this.isOnGround < this.groundLevel) {
+                this.isOnGround = false;
+            }
+        };
+
+        updateGroundLevel(); // Set the initial value
+
+        // Update bottomY on resize and scroll
+        window.addEventListener('resize', updateGroundLevel);
+        window.addEventListener('scroll', updateGroundLevel);
+    }
+
+    applyGravity() {
+
+        const stretch = () => {
+            // Stretch Blobby vertically and reduce horizontally
+            this.blobbyBody.style.height = `${this.height * 2.2}px`;
+            this.blobbyBody.style.width = `${this.width * 1.3}px`;
+            this.blobbyBody.style.transition = 'all 100ms linear';
+        };
+
+        const squash = () => {
+            // execute after timestep finished
+            setTimeout( () => {
+                // Squash Blobby horizontally and reduce vertically
+                this.blobbyBody.style.height = `${this.height * 1.2}px`;
+                this.blobbyBody.style.width = `${this.width * 1.8}px`;
+                this.blobbyBody.style.transition = 'all 300ms ease-out';
+
+                setTimeout(() => {
+                    // Return Blobby to normal after squashing
+                    this.blobbyBody.style.height = `${this.height * 1.8}px`;
+                    this.blobbyBody.style.width = `${this.width * 1.5}px`;
+                    this.blobbyBody.style.transition = 'all 300ms ease-out';
+                }, 300);
+            }, this.gravityTimestep);
+        };
+
+        const fall = () => {
+            console.log(
+                `this.top: ${this.top};
+                this.left: ${this.left};
+                this.isOnGround: ${this.isOnGround};
+                this.velocity: ${this.velocityY}:
+                this.y: ${this.y};
+                this.groundLevel: ${this.groundLevel};
+                `
+            );
+            if (!this.isOnGround) {
+                this.velocityY += this.gravity; // Increase velocity by gravity
+                this.y = this.y + this.velocityY; // Use the setter to update position
+    
+                if (this.isOnGround) { // Check if Blobby has hit the ground after setting top
+                    squash(); // Squash Blobby on impact
+                } else {
+                    stretch(); // Stretch Blobby while falling
+                }
+            }
+            } 
+
+        setInterval(fall, this.gravityTimestep); // Continuously apply gravity
+    }
+
+
+    // have blobby jump
     jump() {
-        
+
 
 
     }
