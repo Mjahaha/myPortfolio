@@ -14,6 +14,7 @@ class Blobby {
         this.eyeSpace = 5;  // Space between the eyes
         this.groundLevel = 0; // Initialize the ground level
         this.gravityTimestep = 100;
+        this.currentActualHeight = 0;
 
         // attention details 
         this.attentionTimestep = 6000;
@@ -47,7 +48,8 @@ class Blobby {
         this.moveEyes();    // constantly moves eyes to the direciton of where the attention item is
         this.moveAttention();   //moves attention randomly to different items on the screen 
         this.trackGroundLevel();    // Call the method to set and keep track of the bottom Y value
-        this.applyGravity(); // Apply gravity to Blobby
+        this.applyGravity();    // Apply gravity to Blobby
+        this.recalculateHeight();   // Stores Blobbys actual height; 
         console.log(this);
     }
     get x() {
@@ -70,8 +72,9 @@ class Blobby {
     }
     set y(input) {
         if (isNaN(input)) { return }
+        this.recalculateHeight();
         const screenWidth = window.innerWidth;
-        const maxY = this.groundLevel - this.height / 2; 
+        const maxY = this.groundLevel - this.currentActualHeight / 2 + 20; 
         if (input < maxY) {
             this._y = input;
         } else {
@@ -237,7 +240,10 @@ class Blobby {
     }
 
     recalculateHeight() {
-        const top = 1;
+        const blobbyTop = this.blobbyHead.getBoundingClientRect().top;
+        const blobbyBodyStats = this.blobbyBody.getBoundingClientRect();
+        const blobbyBottom = blobbyBodyStats.top + blobbyBodyStats.height;
+        this.currentActualHeight = blobbyBottom - blobbyTop;
     }
 
     trackGroundLevel() {
@@ -267,19 +273,26 @@ class Blobby {
 
         const squash = () => {
             // execute after timestep finished
-            setTimeout( () => {
-                // Squash Blobby horizontally and reduce vertically
-                this.blobbyBody.style.height = `${this.height * 1.2}px`;
-                this.blobbyBody.style.width = `${this.width * 1.8}px`;
-                this.blobbyBody.style.transition = 'all 300ms ease-out';
 
-                setTimeout(() => {
-                    // Return Blobby to normal after squashing
-                    this.blobbyBody.style.height = `${this.height * 1.8}px`;
-                    this.blobbyBody.style.width = `${this.width * 1.5}px`;
-                    this.blobbyBody.style.transition = 'all 300ms ease-out';
-                }, 300);
-            }, this.gravityTimestep);
+            // Calculate the difference in height when Blobby squashes
+            const heightDiff = this.height * 1.8 - this.height * 1.2;
+
+            // Increase the top position to keep the bottom in the same place
+            this.top += heightDiff / 2 + 20; 
+
+            // Squash Blobby horizontally and reduce vertically
+            this.blobbyBody.style.height = `${this.height * 1.2}px`;
+            this.blobbyBody.style.width = `${this.width * 1.8}px`;
+            this.blobbyBody.style.transition = 'all 200ms ease-out';
+
+            setTimeout(() => {
+                // Return Blobby to normal after squashing
+                this.top -= heightDiff / 2 + 20; // Reset the top position
+                this.blobbyBody.style.height = `${this.height * 1.8}px`;
+                this.blobbyBody.style.width = `${this.width * 1.5}px`;
+                this.blobbyBody.style.transition = 'all 300ms ease-out';
+            }, 200);
+
         };
 
         const fall = () => {
@@ -302,7 +315,7 @@ class Blobby {
                     stretch(); // Stretch Blobby while falling
                 }
             }
-            } 
+        } 
 
         setInterval(fall, this.gravityTimestep); // Continuously apply gravity
     }
