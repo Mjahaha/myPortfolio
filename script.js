@@ -13,7 +13,6 @@ class Blobby {
         this.eyeSize = 15;  // Size of the eyes
         this.eyeSpace = 5;  // Space between the eyes
         this.groundLevel = 0; // Initialize the ground level
-        this.gravityTimestep = 100;
         this.currentActualHeight = 0;
         this.isAboveGroundLevel = true;
 
@@ -40,7 +39,9 @@ class Blobby {
         // gravity details 
         this.gravity = 10; // The rate at which Blobby accelerates towards the ground
         this.velocityY = 0; // The current velocity of Blobby's fall
+        this.velocityX = 0;
         this.isOnGround = false; // Flag to check if Blobby is on the ground
+        this.gravityTimestep = 100;
 
         // methods to make blobby work
         this.createCreature();  // creates the blobby divs
@@ -51,20 +52,30 @@ class Blobby {
         this.trackGroundLevel();    // Call the method to set and keep track of the bottom Y value
         this.applyGravity();    // Apply gravity to Blobby
         this.recalculateHeight();   // Stores Blobbys actual height; 
+
+        // for testing
         console.log(this);
+        this.blobbyBody.addEventListener('click', () => {
+            console.log('jump!');
+            this.jump();
+        });
+
     }
     get x() {
         return this._x;
     }
     set x(input) {
         if (isNaN(input)) { return }
-        const maxX = this.groundLevel - this.height / 2;
-        if (input < maxX) {
-            this._x = input;
-            this.isOnGround = false; // Blobby is not on the ground
-        } else {
+        const maxX = window.innerWidth - this.width - 23;
+        const minX = 0;
+        if (input > maxX) {
             this._x = maxX;
-            this.isOnGround = true; // Blobby is on the ground
+        } 
+        else if (input < minX) {
+            this.x = 0;
+        }
+        else {
+            this._x = input;
         }
         this.left = this._x - this.height / 2; // Update left position based on x
     }
@@ -95,6 +106,7 @@ class Blobby {
             } else {
                 this._y = maxY;
                 this.velocityY = 0;
+                this.velocityX = 0;
                 this.isOnGround = true;
                 this.top = this._y - this.height / 2;
             }
@@ -150,6 +162,7 @@ class Blobby {
             border-radius: 50%; 
             top: -10%; 
             left: 50%; 
+            z-index: 3;
             transform: translate(-50%, -50%);
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Adds shading to the bottom */
         `;
@@ -160,7 +173,7 @@ class Blobby {
             width: ${this.width * 1.5}px; 
             background-color: lightblue; 
             border-radius: 50%; 
-            z-index: -1;
+            z-index: 2;
             top: ${this.y}px;
             left: ${this.x}px;
         `
@@ -176,6 +189,7 @@ class Blobby {
             background-color: black; 
             border-radius: 50%; 
             top: ${eyeOffsetY}px;
+            z-index: 4;
             transition: all 35ms linear;
         `;
         const eyeStyleLeft = `
@@ -225,13 +239,16 @@ class Blobby {
             this.rightEye.style.transform = `translate(${eyeX}px, ${eyeY}px)`;
         }
 
-        // move eyes every 10ms
-        setInterval(actualMovingOfTheEyes, 10);
+        // move eyes every 35ms
+        setInterval(actualMovingOfTheEyes, 35);
     }
 
     moveAttention() {
     // randomly determine where blobby is paying attention to
     const shouldWeMoveAttention = () => {
+        // dont change attention while in the air 
+        if (!this.isOnGround) { return; }
+
         // options of what to change to should not include current item
         const optionsToChangeAttentionTo = [];
         this.currentAttentionOptions.forEach( (option) => {
@@ -246,13 +263,14 @@ class Blobby {
             // change attention item
             const randomNumberToChooseOption = Math.floor(Math.random() * optionsToChangeAttentionTo.length);
             this.currentAttentionItem = optionsToChangeAttentionTo[randomNumberToChooseOption];
+            console.log("attention has changed to: " + this.currentAttentionItem);
             
             //change transitions to be appropriate
             this.leftEye.style.transition = "all 750ms ease-in-out";
             this.rightEye.style.transition = "all 750ms ease-in-out";
             setTimeout( () => {
-                this.leftEye.style.transition = "all 100ms linear";
-                this.rightEye.style.transition = "all 100ms linear";
+                this.leftEye.style.transition = "all 35ms linear";
+                this.rightEye.style.transition = "all 35ms linear";
             }, 750);
         }
     }
@@ -287,6 +305,7 @@ class Blobby {
 
     applyGravity() {
 
+        // stretch blobby out when he is falling
         const stretch = () => {
             // Stretch Blobby vertically and reduce horizontally
             this.blobbyBody.style.height = `${this.height * 2.2}px`;
@@ -294,6 +313,7 @@ class Blobby {
             this.blobbyBody.style.transition = 'all 100ms linear';
         };
 
+        // squash blobby for when he lands 
         const squash = () => {
             // execute after timestep finished
 
@@ -318,19 +338,23 @@ class Blobby {
 
         };
 
-        const fall = () => {
-            console.log(
-                `this.top: ${this.top};
+        const moveBasedOnVelocitiesAndGravity = () => {
+            
+            /* console.log(`
+                this.top: ${this.top};
                 this.left: ${this.left};
                 this.isOnGround: ${this.isOnGround};
-                this.velocity: ${this.velocityY}:
+                this.velocityY: ${this.velocityY};
+                this.velocityX: ${this.velocityX};
                 this.y: ${this.y};
+                this.x: ${this.x};
                 this.groundLevel: ${this.groundLevel};
-                `
-            );
-            if (!this.isOnGround) {
-                this.velocityY += this.gravity; // Increase velocity by gravity
-                this.y = this.y + this.velocityY; // Use the setter to update position
+            `); */
+            
+            if (!this.isOnGround || this.velocityY < 0) {
+                this.velocityY += this.gravity;     // Increase velocity by gravity
+                this.x = this.x + this.velocityX;   // Adjust x based on velocity 
+                this.y = this.y + this.velocityY;   // Adjust y based on velocity 
     
                 if (this.isOnGround && this.isAboveGroundLevel) { // Check if Blobby has hit the ground after setting top
                     squash(); // Squash Blobby on impact
@@ -340,14 +364,165 @@ class Blobby {
             }
         } 
 
-        setInterval(fall, this.gravityTimestep); // Continuously apply gravity
+        setInterval(moveBasedOnVelocitiesAndGravity, this.gravityTimestep); // Continuously apply gravity
     }
 
 
     // have blobby jump
     jump() {
+        
+        
+        // the animation of blobby squatting down to get ready for his jump
+        const littleJumpSquashAndGo = () => {
 
+            // Calculate the difference in height when Blobby squashes
+            const heightDiff = this.height * 1.8 - this.height * 1.2;
 
+            // Increase the top position to keep the bottom in the same place
+            this.top += heightDiff / 2 + 20; 
+
+            // Squash Blobby horizontally and reduce vertically
+            this.blobbyBody.style.height = `${this.height * 1.2}px`;
+            this.blobbyBody.style.width = `${this.width * 1.8}px`;
+            this.blobbyBody.style.transition = 'all 200ms ease-out';
+
+            setTimeout(() => {
+                // Return Blobby to normal after squashing
+                this.top -= heightDiff / 2 + 20; // Reset the top position
+                this.blobbyBody.style.height = `${this.height * 1.8}px`;
+                this.blobbyBody.style.width = `${this.width * 1.5}px`;
+                this.blobbyBody.style.transition = 'all 300ms ease-out';
+                executeLittleJump();
+            }, 200);
+        };
+
+        
+        // the animaiton for blobby adding a wiggle to the squash for a bit jump
+        const squashAndWiggleForJump = () => {
+            // Calculate the difference in height when Blobby squashes
+            const heightDiff = this.height * 1.8 - this.height * 1.2;
+
+            const squashForJumpBeforeWiggle = () => {
+                // Increase the top position to keep the bottom in the same place
+                this.top += heightDiff / 2 + 20; 
+
+                // Squash Blobby horizontally and reduce vertically
+                this.blobbyBody.style.height = `${this.height * 1.2}px`;
+                this.blobbyBody.style.width = `${this.width * 1.8}px`;
+                this.blobbyBody.style.transition = 'all 200ms ease-out';
+
+                setTimeout(() => {
+                    wiggle();
+                }, 500);
+            }
+
+            const wiggle = () => {
+                let wiggleCount = 0;
+                const numberOfWiggles = 10; // Total number of wiggles
+                const wiggleInterval = 50; // Time in ms between each wiggle
+        
+                const wiggleAnimation = setInterval(() => {
+                    // Alternate the wiggle direction
+                    this.blobbyBody.style.transform = `translateX(${wiggleCount % 2 === 0 ? -10 : 10}px)`;
+        
+                    wiggleCount++;
+                    if (wiggleCount > numberOfWiggles) {
+                        clearInterval(wiggleAnimation);
+                        // Reset Blobby's transform after wiggling
+                        this.blobbyBody.style.transform = 'translateX(0px)';
+                        // Return Blobby to normal after squashing
+                        this.top -= heightDiff / 2 + 20; // Reset the top position
+                        this.blobbyBody.style.height = `${this.height * 1.8}px`;
+                        this.blobbyBody.style.width = `${this.width * 1.5}px`;
+                        this.blobbyBody.style.transition = 'all 300ms ease-out';
+                        executeTargetedJump();
+                    }
+                }, wiggleInterval);
+            }
+
+            //execute sequence
+            squashForJumpBeforeWiggle();
+
+        } 
+
+        const executeLittleJump = () => {
+            // variables for jumping 
+            const targetX = this.attentionItem[this.currentAttentionItem].x; 
+            const deltaX = targetX - this.x; 
+            let posNegMultiplier = 1;
+            if (deltaX < 0) { posNegMultiplier = -1; }
+
+            /* console.log(`
+            targetX = ${targetX}:
+            this.X = ${this.x}:
+            deltaX = ${deltaX}:
+            posNegMultiplier = ${posNegMultiplier}:
+            `): */
+
+            // Set horizontal and vertical velocities for a little jump
+            this.velocityX = 12 * posNegMultiplier; // Limit horizontal movement to 250px
+            this.velocityY = -50;
+            // velX as 12 and velY as -50 has jump distance of 108
+        }
+    
+        const executeTargetedJump = () => {
+            // variable for the formula 
+            const targetX = this.attentionItem[this.currentAttentionItem].x;
+            const targetY = this.attentionItem[this.currentAttentionItem].y;
+            const deltaX = this.x - targetX;
+            const deltaY = targetY - this.y;
+
+            const velocityY = Math.sqrt(2 * this.gravity * Math.abs(deltaY));
+            const timeStepsToReachPeakOfJump = velocityY / this.gravity;
+            const velocityX = 2 * Math.abs(deltaX / (2 * timeStepsToReachPeakOfJump));
+            let posNegMultiplier = 1;   // to determine the direction of horizontal vel, 1 is left -1 is right
+            if (deltaX > 0) { posNegMultiplier = -1; }
+
+            console.log(`
+            deltaY = ${deltaY}:
+            velocityY = ${velocityY}:
+            timeStepsToReachPeakOfJump = ${timeStepsToReachPeakOfJump}:
+            targetX = ${targetX}:
+            this.X = ${this.x}:
+            deltaX = ${deltaX}:
+            velocityX = ${velocityX}:
+            posNegMultiplier = ${posNegMultiplier}:
+            `)
+            
+            console.log(velocityY);
+
+            this.velocityY = -1 * velocityY * 1.1;
+            this.velocityX = velocityX * posNegMultiplier;
+            
+        }
+
+        // chooses which jump to do an runs jump 
+        const runjump = () => {
+            // exit if not on the ground 
+            if (!this.isOnGround) { return; }
+
+            // variable for the formula 
+            const targetX = this.attentionItem[this.currentAttentionItem].x;
+            const targetY = this.attentionItem[this.currentAttentionItem].y;
+            const deltaX = Math.abs(this.x - targetX);  // finds how many pixels blobby is from targetX
+            const deltaY = Math.abs(targetY - this.y);    // finds how many pixels blobby is from targetY
+
+            console.log(`
+                this.x: ${this.x}
+                targetX: ${targetX}
+                deltaX: ${deltaX}
+                deltaY: ${deltaY}
+            `);
+
+            // a small jump goes 108px so if small jump until we are close enough 
+            if (deltaX < 100 && deltaY > 100) {
+                squashAndWiggleForJump();
+            } else {
+                littleJumpSquashAndGo();
+            }
+        }
+
+        runjump();
 
     }
     
