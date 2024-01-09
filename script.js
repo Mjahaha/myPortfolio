@@ -17,16 +17,16 @@ class Blobby {
         this.isAboveGroundLevel = true;
 
         // attention details 
-        this.attentionTimestep = 6000;
+        this.attentionTimestep = 4000;
         this.currentAttentionItem = "mouse";
-        this.currentAttentionOptions = ["mouse", "nav"];
-        const navElement = document.getElementById("nav").getBoundingClientRect();
+        this.currentAttentionOptions = ["mouse", "navigationInHeader"];
+        const navElement = document.getElementById("navigationInHeader").getBoundingClientRect();
         this.attentionItem = {
             mouse: {
                 x: 100,
                 y: 100
             },
-            nav: {
+            navigationInHeader: {
                 left: navElement.left,
                 top: navElement.top,
                 width: navElement.width,
@@ -215,6 +215,8 @@ class Blobby {
         });
     }
 
+    // goes through all of the
+
     // constantly moves eyes to the direciton of where the attention item is
     moveEyes(event) {
         const actualMovingOfTheEyes = () => {
@@ -258,20 +260,23 @@ class Blobby {
         });
         
         // chance to change
-        const randomNumberToSeeIfAttentionShifts = Math.ceil(Math.random() * 2); 
+        const randomNumberToSeeIfAttentionShifts = Math.ceil(Math.random() * 3); 
+        // if the random number is 1 shift attention, otherwise jump
         if (randomNumberToSeeIfAttentionShifts === 1 ) {
             // change attention item
             const randomNumberToChooseOption = Math.floor(Math.random() * optionsToChangeAttentionTo.length);
             this.currentAttentionItem = optionsToChangeAttentionTo[randomNumberToChooseOption];
             console.log("attention has changed to: " + this.currentAttentionItem);
             
-            //change transitions to be appropriate
+            // change transitions so his eyes dont jerk weirdly to attention item
             this.leftEye.style.transition = "all 750ms ease-in-out";
             this.rightEye.style.transition = "all 750ms ease-in-out";
-            setTimeout( () => {
+            setTimeout( () => {     // return eyes to normal 
                 this.leftEye.style.transition = "all 35ms linear";
                 this.rightEye.style.transition = "all 35ms linear";
             }, 750);
+        } else {    // otherwise execute jump
+            this.jump();
         }
     }
 
@@ -369,8 +374,7 @@ class Blobby {
 
 
     // have blobby jump
-    jump() {
-        
+    jump() {  
         
         // the animation of blobby squatting down to get ready for his jump
         const littleJumpSquashAndGo = () => {
@@ -395,7 +399,6 @@ class Blobby {
                 executeLittleJump();
             }, 200);
         };
-
         
         // the animaiton for blobby adding a wiggle to the squash for a bit jump
         const squashAndWiggleForJump = () => {
@@ -445,6 +448,7 @@ class Blobby {
 
         } 
 
+        // does a little jump towards attention item 
         const executeLittleJump = () => {
             // variables for jumping 
             const targetX = this.attentionItem[this.currentAttentionItem].x; 
@@ -464,7 +468,8 @@ class Blobby {
             this.velocityY = -50;
             // velX as 12 and velY as -50 has jump distance of 108
         }
-    
+        
+        // does a big jump that reaches the attention item 
         const executeTargetedJump = () => {
             // variable for the formula 
             const targetX = this.attentionItem[this.currentAttentionItem].x;
@@ -515,7 +520,7 @@ class Blobby {
             `);
 
             // a small jump goes 108px so if small jump until we are close enough 
-            if (deltaX < 100 && deltaY > 100) {
+            if (deltaX < 200 && deltaY > 100) {
                 squashAndWiggleForJump();
             } else {
                 littleJumpSquashAndGo();
@@ -523,7 +528,6 @@ class Blobby {
         }
 
         runjump();
-
     }
     
 }
