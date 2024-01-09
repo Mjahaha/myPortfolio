@@ -20,6 +20,7 @@ body {
     background-position:center;
     font-family: Oswald;
     color: whitesmoke;
+    overflow-x: hidden;
 }
 
 
@@ -28,24 +29,28 @@ body {
 
 /* This styles the entire header, giving it some space and a cool background */
 header {
-    padding: 10px 0; /* Some padding to give it space */
-    text-align: center; /* Centers the nav in the header */
+    position: fixed;
+    width: 100%;
+    top: 0;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+    padding: 10px 0; /* Some padding to give it space */
+    text-align: center; /* Centers the nav in the header */
     font-size: 18px; /* Larger font size for better readability */
     /* background-color: #333; /* Dark background for a cool look */
 }
 
-header div {
-    font-family: Rubik Glitch;
+#headerLogo {
+    font-family: Rubik;
     font-size: 35px;
 }
 
 /* This styles the nav element */
 nav {
     margin: 0; /* Centers the nav */
-    display: inline-block; /* Aligns the nav items horizontally */
+    display: inline-flex; /* Aligns the nav items horizontally */
+    align-items: center;
 }
 
 /* This removes the default list styling */
