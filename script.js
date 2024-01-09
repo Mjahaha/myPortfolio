@@ -19,22 +19,16 @@ class Blobby {
         // attention details 
         this.attentionTimestep = 4000;
         this.currentAttentionItem = "mouse";
-        this.currentAttentionOptions = ["mouse", "navigationInHeader"];
-        const navElement = document.getElementById("navigationInHeader").getBoundingClientRect();
-        this.attentionItem = {
+        this.currentAttentionOptions = ["mouse", "navBarInHeader"];
+        this.attentionItems = {
             mouse: {
                 x: 100,
                 y: 100
-            },
-            navigationInHeader: {
-                left: navElement.left,
-                top: navElement.top,
-                width: navElement.width,
-                height: navElement.height,
-                x: navElement.left + navElement.height / 2,
-                y: navElement.top + navElement.width / 2
             }
         }
+        this.setAttentionItemsValues();
+        //const navElement = document.getElementById("navBarInHeader").getBoundingClientRect();
+        
 
         // gravity details 
         this.gravity = 10; // The rate at which Blobby accelerates towards the ground
@@ -210,12 +204,33 @@ class Blobby {
     // stores the mouse coords on the class
     storeMousePosListener() {
         document.addEventListener('mousemove', (event) => {
-            this.attentionItem.mouse.x = event.clientX;
-            this.attentionItem.mouse.y = event.clientY;
+            this.attentionItems.mouse.x = event.clientX;
+            this.attentionItems.mouse.y = event.clientY;
         });
     }
 
-    // goes through all of the
+    // set the values for each potential attention items 
+    setAttentionItemsValues() {
+        this.currentAttentionOptions.forEach((itemId) => {
+            // Get the DOM element by ID
+            let element = document.getElementById(itemId);
+            if (itemId === "mouse") { element = false };    // set the element to falsey if we are lookng for the mouse 
+            // If the element exists, calculate its position
+            if (element) {
+                const rect = element.getBoundingClientRect();
+                // Update the attentionItem object with the new coordinates
+                this.attentionItems[itemId] = {
+                    left: rect.left,
+                    top: rect.top,
+                    width: rect.width,
+                    height: rect.height,
+                    x: rect.left + rect.width / 2, // Center x-coordinate
+                    y: rect.top + rect.height / 2   // Center y-coordinate
+                };
+            }
+        });
+        //console.log(this.attentionItems);
+    }
 
     // constantly moves eyes to the direciton of where the attention item is
     moveEyes(event) {
@@ -226,8 +241,8 @@ class Blobby {
             const centerY = top + height / 2;
 
             // attention item variables
-            const deltaX = this.attentionItem[this.currentAttentionItem].x - centerX;
-            const deltaY = this.attentionItem[this.currentAttentionItem].y - centerY;
+            const deltaX = this.attentionItems[this.currentAttentionItem].x - centerX;
+            const deltaY = this.attentionItems[this.currentAttentionItem].y - centerY;
             const angle = Math.atan2(deltaY, deltaX);
             const eyeOffset = Math.min(
                 ((this.width - 5) / 4),   //if mouse is outside of the head, the eyes only go 5px from the edge of the head
@@ -293,7 +308,11 @@ class Blobby {
     }
 
     trackGroundLevel() {
+        
         const updateGroundLevel = () => {
+            // updates coords of all attention items
+            this.setAttentionItemsValues()
+            // updates the groundLevel
             this.groundLevel = window.innerHeight + window.scrollY;
             console.log(this.groundLevel);
             if (this.isOnGround < this.groundLevel) {
@@ -401,7 +420,7 @@ class Blobby {
         };
         
         // the animaiton for blobby adding a wiggle to the squash for a bit jump
-        const squashAndWiggleForJump = () => {
+        const bigJumpSquashAndWiggle = () => {
             // Calculate the difference in height when Blobby squashes
             const heightDiff = this.height * 1.8 - this.height * 1.2;
 
@@ -451,8 +470,14 @@ class Blobby {
         // does a little jump towards attention item 
         const executeLittleJump = () => {
             // variables for jumping 
-            const targetX = this.attentionItem[this.currentAttentionItem].x; 
+            const targetX = this.attentionItems[this.currentAttentionItem].x; 
             const deltaX = targetX - this.x; 
+            const velocityY = 50;
+            const timeStepsToReachPeakOfJump = velocityY / this.gravity;    // variable required for potentailVelocityX formula
+            const potentialVelocityX = 2 * Math.abs(deltaX / (2 * timeStepsToReachPeakOfJump)); // velocity required to reach targetX
+            const velocityXMax = 24;
+            const velocityXMin = 12;
+            const velocityX = Math.max(Math.min(potentialVelocityX, velocityXMax), velocityXMin)    // get the correct velocity that is bounded by the min and max values 
             let posNegMultiplier = 1;
             if (deltaX < 0) { posNegMultiplier = -1; }
 
@@ -464,16 +489,16 @@ class Blobby {
             `): */
 
             // Set horizontal and vertical velocities for a little jump
-            this.velocityX = 12 * posNegMultiplier; // Limit horizontal movement to 250px
-            this.velocityY = -50;
+            this.velocityX = velocityX * posNegMultiplier; // Limit horizontal movement to 250px
+            this.velocityY = -1 * velocityY;
             // velX as 12 and velY as -50 has jump distance of 108
         }
         
         // does a big jump that reaches the attention item 
         const executeTargetedJump = () => {
             // variable for the formula 
-            const targetX = this.attentionItem[this.currentAttentionItem].x;
-            const targetY = this.attentionItem[this.currentAttentionItem].y;
+            const targetX = this.attentionItems[this.currentAttentionItem].x;
+            const targetY = this.attentionItems[this.currentAttentionItem].y;
             const deltaX = this.x - targetX;
             const deltaY = targetY - this.y;
 
@@ -483,7 +508,7 @@ class Blobby {
             let posNegMultiplier = 1;   // to determine the direction of horizontal vel, 1 is left -1 is right
             if (deltaX > 0) { posNegMultiplier = -1; }
 
-            console.log(`
+            /* console.log(`
             deltaY = ${deltaY}:
             velocityY = ${velocityY}:
             timeStepsToReachPeakOfJump = ${timeStepsToReachPeakOfJump}:
@@ -492,10 +517,8 @@ class Blobby {
             deltaX = ${deltaX}:
             velocityX = ${velocityX}:
             posNegMultiplier = ${posNegMultiplier}:
-            `)
+            `) */
             
-            console.log(velocityY);
-
             this.velocityY = -1 * velocityY * 1.1;
             this.velocityX = velocityX * posNegMultiplier;
             
@@ -507,8 +530,8 @@ class Blobby {
             if (!this.isOnGround) { return; }
 
             // variable for the formula 
-            const targetX = this.attentionItem[this.currentAttentionItem].x;
-            const targetY = this.attentionItem[this.currentAttentionItem].y;
+            const targetX = this.attentionItems[this.currentAttentionItem].x;
+            const targetY = this.attentionItems[this.currentAttentionItem].y;
             const deltaX = Math.abs(this.x - targetX);  // finds how many pixels blobby is from targetX
             const deltaY = Math.abs(targetY - this.y);    // finds how many pixels blobby is from targetY
 
@@ -521,7 +544,7 @@ class Blobby {
 
             // a small jump goes 108px so if small jump until we are close enough 
             if (deltaX < 200 && deltaY > 100) {
-                squashAndWiggleForJump();
+                bigJumpSquashAndWiggle();
             } else {
                 littleJumpSquashAndGo();
             }
