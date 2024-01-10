@@ -1,7 +1,8 @@
 import { Blobby } from './javascript/blobby.js';
 
 // Create and display blobby 
-new Blobby(["mouse", "navBarInHeader", "headerLogo"]);
+//new Blobby(["navBarInHeader", "headerLogo"]);
+new Blobby(["websiteIntroduction"]);
 
 // make logo flicker in and out 
 const myLogo = document.getElementById("headerLogo"); 

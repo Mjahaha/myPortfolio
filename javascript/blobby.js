@@ -18,8 +18,9 @@ export class Blobby {
 
         // attention details 
         this.attentionTimestep = 4000;
-        this.currentAttentionItem = "mouse";
         this.currentAttentionOptions = arrayOfElementIdsForAttention;
+        this.currentAttentionOptions.push("mouse"); // adds mouse to the array of attention items
+        this.currentAttentionItem = "mouse";
         this.attentionItems = {
             mouse: {
                 x: 100,
@@ -205,8 +206,8 @@ export class Blobby {
     storeMousePosListener() {
         // updates the mouse position when the mouse moves
         document.addEventListener('mousemove', (event) => {
-            this.attentionItems.mouse.x = event.clientX;
-            this.attentionItems.mouse.y = event.clientY;
+            this.attentionItems.mouse.x = event.clientX + window.scrollX;
+            this.attentionItems.mouse.y = event.clientY + window.scrollY;
         });
 
         // when the mouse enters the window, add 'mouse' to attentionItems if it's not already there
@@ -240,12 +241,12 @@ export class Blobby {
                     top: rect.top,
                     width: rect.width,
                     height: rect.height,
-                    x: rect.left + rect.width / 2, // Center x-coordinate
-                    y: rect.top + rect.height / 2   // Center y-coordinate
+                    x: rect.left + rect.width / 2 + window.scrollX, // Center x-coordinate
+                    y: rect.top + rect.height / 2  + window.scrollY  // Center y-coordinate
                 };
             }
         });
-        //console.log(this.attentionItems);
+        console.log(this.attentionItems);
     }
 
     // constantly moves eyes to the direciton of where the attention item is
@@ -256,9 +257,12 @@ export class Blobby {
             const centerX = left + width / 2;
             const centerY = top + height / 2;
 
+            const attentionX = this.attentionItems[this.currentAttentionItem].x - window.scrollX; // Adjust for scroll
+            const attentionY = this.attentionItems[this.currentAttentionItem].y - window.scrollY; // Adjust for scroll
+
             // attention item variables
-            const deltaX = this.attentionItems[this.currentAttentionItem].x - centerX;
-            const deltaY = this.attentionItems[this.currentAttentionItem].y - centerY;
+            const deltaX = attentionX - centerX;
+            const deltaY = attentionY - centerY;
             const angle = Math.atan2(deltaY, deltaX);
             const eyeOffset = Math.min(
                 ((this.width - 5) / 4),   //if mouse is outside of the head, the eyes only go 5px from the edge of the head
@@ -289,9 +293,13 @@ export class Blobby {
                 optionsToChangeAttentionTo.push(option)
             }
         });
+        if (optionsToChangeAttentionTo.length == 0) {   // don't change attention if there is nothing to change to, usually when mouse leaves
+            this.jump();
+            return;
+        } 
         
         // chance to change
-        const randomNumberToSeeIfAttentionShifts = Math.ceil(Math.random() * 3); 
+        const randomNumberToSeeIfAttentionShifts = Math.ceil(Math.random() * 3); // 1 in 3 chance to change attention
         // if the random number is 1 shift attention, otherwise jump
         if (randomNumberToSeeIfAttentionShifts === 1 ) {
             // change attention item
@@ -324,22 +332,23 @@ export class Blobby {
     }
 
     trackGroundLevel() {
-        
         const updateGroundLevel = () => {
             // updates coords of all attention items
             this.setAttentionItemsValues()
             // updates the groundLevel
             let screenGroundLevel = window.innerHeight + window.scrollY;
-
-            let maxGroundLevel = document.getElementById('containerForEverything').getBoundingClientRect().top + window.scrollY + 
-                  document.getElementById('containerForEverything').getBoundingClientRect().height; // dont let ground level get past the bottom of the page
+            // dont let ground level get past the bottom of the page
+            let maxGroundLevel = document.body.getBoundingClientRect().top + document.body.getBoundingClientRect().height + window.scrollY - 10; 
             this.groundLevel = Math.min(screenGroundLevel, maxGroundLevel);
 
-            console.log("normal GroundLevel:  " + screenGroundLevel);
-            console.log("maxGroundLevel:      " + maxGroundLevel);
-            console.log("top:                 " + document.getElementById('containerForEverything').getBoundingClientRect().top)
-            console.log("height:              " + document.getElementById('containerForEverything').getBoundingClientRect().height)
-            console.log("chosen ground level: " + this.groundLevel);
+            /* console.log(`
+                normal GroundLevel:  ${screenGroundLevel}
+                maxGroundLevel:      ${maxGroundLevel}
+                top:                 ${document.body.getBoundingClientRect().top + window.scrollY}
+                height:              ${document.body.getBoundingClientRect().height}
+                chosen ground level: ${this.groundLevel}
+            `); */
+
             if (this.isOnGround < this.groundLevel) {
                 this.isOnGround = false;
             }
@@ -466,8 +475,8 @@ export class Blobby {
 
             const wiggle = () => {
                 let wiggleCount = 0;
-                const numberOfWiggles = 10; // Total number of wiggles
-                const wiggleInterval = 50; // Time in ms between each wiggle
+                const numberOfWiggles = 8; // Total number of wiggles
+                const wiggleInterval = 100; // Time in ms between each wiggle
         
                 const wiggleAnimation = setInterval(() => {
                     // Alternate the wiggle direction
