@@ -329,8 +329,17 @@ export class Blobby {
             // updates coords of all attention items
             this.setAttentionItemsValues()
             // updates the groundLevel
-            this.groundLevel = window.innerHeight + window.scrollY;
-            console.log(this.groundLevel);
+            let screenGroundLevel = window.innerHeight + window.scrollY;
+
+            let maxGroundLevel = document.getElementById('containerForEverything').getBoundingClientRect().top + window.scrollY + 
+                  document.getElementById('containerForEverything').getBoundingClientRect().height; // dont let ground level get past the bottom of the page
+            this.groundLevel = Math.min(screenGroundLevel, maxGroundLevel);
+
+            console.log("normal GroundLevel:  " + screenGroundLevel);
+            console.log("maxGroundLevel:      " + maxGroundLevel);
+            console.log("top:                 " + document.getElementById('containerForEverything').getBoundingClientRect().top)
+            console.log("height:              " + document.getElementById('containerForEverything').getBoundingClientRect().height)
+            console.log("chosen ground level: " + this.groundLevel);
             if (this.isOnGround < this.groundLevel) {
                 this.isOnGround = false;
             }
@@ -390,6 +399,7 @@ export class Blobby {
                 this.x: ${this.x};
                 this.groundLevel: ${this.groundLevel};
             `); */
+            //doubleCheckOnGround();
             
             if (!this.isOnGround || this.velocityY < 0) {
                 this.velocityY += this.gravity;     // Increase velocity by gravity

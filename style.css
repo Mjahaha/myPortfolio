@@ -16,11 +16,17 @@ Table of contents
 body {
     background-color: #333; /* Dark background for a cool look */
     background-image: url(./images/abstractGeometricBackgroundWithTranslucentBlack.png);
-    background-repeat: none;
     background-position:center;
     font-family: Oswald;
     color: whitesmoke;
     overflow-x: hidden;
+    padding: 40px;
+    height: 100%; /* Full height */
+}
+
+.containerForEverything {
+    max-height: 100vh;
+    overflow-y: auto;
 }
 
 
@@ -47,10 +53,11 @@ header {
 }
 
 /* This styles the nav element */
-nav {
+header nav {
     margin: 0; /* Centers the nav */
     display: inline-flex; /* Aligns the nav items horizontally */
     align-items: center;
+    margin-right: 80px;
 }
 
 /* This removes the default list styling */
@@ -77,6 +84,7 @@ nav ul li:hover {
 
 /* 3. Hot body */
 
-#introText {
-    margin: 25% 10% 10% 5%;
+#websiteIntroduction {
+    margin: 50vh 15vw 15vh 15vw;
+    font-size: 16px;
 }
