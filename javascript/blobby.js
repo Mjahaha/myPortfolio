@@ -246,7 +246,7 @@ export class Blobby {
                 };
             }
         });
-        console.log(this.attentionItems);
+        //console.log(this.attentionItems);
     }
 
     // constantly moves eyes to the direciton of where the attention item is
