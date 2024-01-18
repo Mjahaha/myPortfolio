@@ -82,10 +82,15 @@ nav ul li:hover {
 #websiteIntroduction {
     margin: 50vh 15vw 30vh 15vw;
     font-size: 24px;
+    position: relative;
     /*
     -webkit-animation: slide-in-right 1s ease-out 4s both;
 	animation: slide-in-right 1s ease-out 4s both;
     */
+}
+
+.galleryItemContent {
+    position: relative;
 }
 
 #skillsIHave {
