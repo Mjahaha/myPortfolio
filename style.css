@@ -91,6 +91,8 @@ nav ul li:hover {
 
 .galleryItemContent {
     position: relative;
+    font-size: 46px;
+
 }
 
 #skillsIHave {

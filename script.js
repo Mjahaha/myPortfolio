@@ -79,14 +79,21 @@ const createGallery = (id) => {
             const deltaX = (x - startX) * 1.4;
             galleryElement.style.left = startingLeft + deltaX + 'px';
             darkenOuterElements();
+            //console.log("left: " + galleryElement.getBoundingClientRect().left)
+            //console.log("width: " + galleryElement.scrollWidth)
+            //console.log("left + width: " + (galleryElement.getBoundingClientRect().left + galleryElement.scrollWidth))
+            //console.log("windowInner: " + (window.innerWidth + 50))
             
             if (galleryElement.getBoundingClientRect().left > -250) { 
-                moveFirstItemToEnd();
-                //startX = event.pageX;
-            }
-            if (galleryElement.getBoundingClientRect().right < window.innerWidth + 250) {
                 moveLastItemToStart();
-                //startX = event.pageX;
+                startX = event.pageX;
+                startingLeft = galleryElement.getBoundingClientRect().left;
+
+            }
+            if (galleryElement.getBoundingClientRect().left + galleryElement.scrollWidth < window.innerWidth + 50) {
+                moveFirstItemToEnd();
+                startX = event.pageX;
+                startingLeft = galleryElement.getBoundingClientRect().left;
             } 
         });
     }
@@ -127,6 +134,7 @@ const darkenOuterElements = () => {
 }
 
 const moveFirstItemToEnd = () => {
+    console.log('moveFirstItemToEnd')
     const galleryElement = document.getElementById('galleryOne');
     if (galleryElement.children.length > 1) {
         const firstItem = galleryElement.children[0];
@@ -135,7 +143,7 @@ const moveFirstItemToEnd = () => {
 
         // Adjust the left position to compensate for the moved item
         const currentLeft = parseInt(galleryElement.style.left, 10);
-        galleryElement.style.left = (currentLeft - itemWidth - itemMargin) + 'px';
+        galleryElement.style.left = (currentLeft + itemWidth + itemMargin) + 'px';
 
         // Move the item
         galleryElement.appendChild(firstItem);
@@ -146,6 +154,7 @@ const moveFirstItemToEnd = () => {
 };
 
 const moveLastItemToStart = () => {
+    console.log('moveLastItemToStart')
     const galleryElement = document.getElementById('galleryOne');
     if (galleryElement.children.length > 1) {
         const lastItem = galleryElement.children[galleryElement.children.length - 1];
@@ -154,7 +163,7 @@ const moveLastItemToStart = () => {
 
         // Adjust the left position to compensate for the moved item
         const currentLeft = parseInt(galleryElement.style.left, 10);
-        galleryElement.style.left = (currentLeft + itemWidth + itemMargin) + 'px';
+        galleryElement.style.left = (currentLeft - itemWidth - itemMargin) + 'px';
 
         // Move the item
         galleryElement.insertBefore(lastItem, galleryElement.firstChild);
