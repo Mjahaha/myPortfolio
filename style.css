@@ -17,19 +17,13 @@ Table of contents
 body {
     background-color: #333; /* Dark background for a cool look */
     background-image: url(./images/abstractGeometricBackgroundWithTranslucentBlack.png);
-    background-position:center;
+    background-position: center;
     font-family: Oswald; /* Oswald */
     color: whitesmoke;
     overflow-x: hidden;
     padding: 40px;
     height: 100%; /* Full height */
 }
-
-.containerForEverything {
-    max-height: 100vh;
-    overflow-y: auto;
-}
-
 
 
 /* 2. Header stylez */ 
@@ -92,6 +86,10 @@ nav ul li:hover {
     -webkit-animation: slide-in-right 1s ease-out 4s both;
 	animation: slide-in-right 1s ease-out 4s both;
     */
+}
+
+#skillsIHave {
+    height: 80vh;
 }
 
 

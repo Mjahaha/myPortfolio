@@ -61,6 +61,7 @@ const createGallery = (id) => {
     }
     addGrabbingEffect();
     
+
 }
 
 createGallery('galleryOne');
