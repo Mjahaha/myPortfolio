@@ -31,11 +31,13 @@ const createGallery = (id) => {
         // initialise variables for click and drag effect
         let isDragging = false;
         let startX;
+        let startingLeft;
         
         // add effect that grabs the gallery item
         galleryElement.addEventListener('mousedown', (event) => {
             isDragging = true;
-            startX = event.pageX - galleryElement.offsetLeft;
+            startX = event.pageX;
+            startingLeft = galleryElement.getBoundingClientRect().left;
             galleryElement.style.cursor = 'grabbing';
         });
         
@@ -56,12 +58,10 @@ const createGallery = (id) => {
             event.preventDefault();
             const x = event.pageX;
             const deltaX = (x - startX) * 0.8;
-            galleryElement.style.left = deltaX + 'px';
+            galleryElement.style.left = startingLeft + deltaX + 'px';
         });
     }
     addGrabbingEffect();
-    
-
 }
 
 createGallery('galleryOne');
