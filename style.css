@@ -23,6 +23,8 @@ body {
     overflow-x: hidden;
     padding: 40px;
     height: 100%; /* Full height */
+    font-size: 46px;
+
 }
 
 
@@ -81,7 +83,7 @@ nav ul li:hover {
 
 #websiteIntroduction {
     margin: 50vh 15vw 40vh 15vw;
-    font-size: 24px;
+    font-size: 0.5em;
     position: relative;
     /*
     -webkit-animation: slide-in-right 1s ease-out 4s both;
@@ -95,31 +97,46 @@ nav ul li:hover {
     justify-content: space-between;
 }
 
-#skillsIHave {
+.gallery {
     height: 80vh;
-    font-size: 46px;
+    font-size: 1em;
 }
 
-#skillsIHave .galleryItemContent div {
+.gallery .galleryItemContent div {
     display: inline-block;
     max-width: 50%;
 }
 
-#skillsIHave .icon {
+.gallery .icon {
     height: 60px;
     width: 60px;
 }
 
-#skillsIHave .displayImage {
+.gallery .displayImage {
     max-width: 100%;
     border: 4px solid rgb(10,10,10);
     border-radius: 5px;
     
 }
 
-#skillsIHave p {
+.gallery p {
     display: inline-block;
+    font-size: 0.8em;
+    margin: 0.5em;
     padding: 0px 40px 0px 0px;
+}
+
+/* media queries */
+@media (max-width: 750px) {
+    .gallery {
+        font-size: 0.6em;
+    }
+    .galleryItemContent {
+        display: block;
+    }
+    .gallery .galleryItemContent div {
+        max-width: 100%;
+    }
 }
 
 
