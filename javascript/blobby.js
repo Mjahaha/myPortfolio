@@ -157,7 +157,7 @@ export class Blobby {
             border-radius: 50%; 
             top: -10%; 
             left: 50%; 
-            z-index: 3;
+            z-index: 9;
             transform: translate(-50%, -50%);
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Adds shading to the bottom */
         `;
@@ -168,7 +168,7 @@ export class Blobby {
             width: ${this.width * 1.5}px; 
             background-color: lightblue; 
             border-radius: 50%; 
-            z-index: 2;
+            z-index: 8;
             top: ${this.y}px;
             left: ${this.x}px;
         `

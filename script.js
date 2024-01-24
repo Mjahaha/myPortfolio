@@ -22,12 +22,14 @@ const createGallery = (id) => {
         // set proporties of each item 
         item.style.width = '70vw';
         item.style.height = '80vh';
-        item.style.backgroundColor = "white";
+        item.style.backgroundColor = "rgb(37,37,37)";
         item.style.margin = '10px';
         item.style.flexShrink = '0';
         item.style.position = 'relative';
-        item.style.overflow = 'hidden'
-        item.style.color = 'black';
+        item.style.overflow = 'hidden';
+        item.style.padding = '3vh 4vw'
+        item.style.border = '9px solid rgb(150, 150, 150)';
+        item.style.borderRadius = "5vh";
 
         // create grey-out div that hides the outter elements
         let darkenerElement = document.createElement('div');
@@ -58,6 +60,7 @@ const createGallery = (id) => {
             startX = event.pageX;
             startingLeft = galleryElement.getBoundingClientRect().left;
             galleryElement.style.cursor = 'grabbing';
+            galleryElement.style.transition = 'left 0s ease-in-out'
         });
         
         // stop dragging if the mouse leaves the screen
@@ -69,6 +72,30 @@ const createGallery = (id) => {
         galleryElement.addEventListener('mouseup', () => {
             isDragging = false;
             galleryElement.style.cursor = 'grab';
+
+            // code to center the middlest element of the gallery
+            let middlestElement;
+            let smallestDistance;
+            let distanceToOffset;
+            galleryContentArray.forEach(item => {
+                // needed properties of the items 
+                const itemRect = item.getBoundingClientRect();
+                const itemMiddle = itemRect.left + itemRect.width / 2;
+                const middleX = window.innerWidth / 2;
+                const distanceToMiddle = Math.abs(middleX - itemMiddle);
+                //console.log(`itemMiddle: ${itemMiddle} and middleX: ${middleX}`);
+                if (!middlestElement || distanceToMiddle < smallestDistance) {
+                    smallestDistance = distanceToMiddle;
+                    middlestElement = item;
+                    distanceToOffset = middleX - itemMiddle;
+                }
+                else {
+                }
+            });
+            // get left most position of galleryElement
+            const galleryLeft = parseInt(galleryElement.style.left, 10);
+            galleryElement.style.transition = 'left 0.5s ease-in-out'
+            galleryElement.style.left = `${galleryLeft + distanceToOffset}px`;
         });
         
         // move gallery while grabbing
@@ -127,7 +154,7 @@ const darkenOuterElements = () => {
     // make all the elements dark by changing opacity 
     galleryContentArray.forEach(item => {
         let darkenerElement = item.querySelector('.darkener');
-        darkenerElement.style.opacity = '0.5';
+        darkenerElement.style.opacity = '0.75';
     });
     // undarken the middle element
     middlestElement.querySelector('.darkener').style.opacity = '0';
