@@ -58,21 +58,22 @@ const createGallery = (id) => {
         galleryElement.addEventListener('mousedown', (event) => {
             isDragging = true;
             startX = event.pageX;
-            startingLeft = galleryElement.getBoundingClientRect().left;
+            startingLeft = parseInt(galleryElement.style.left, 10);
             galleryElement.style.cursor = 'grabbing';
             galleryElement.style.transition = 'left 0s ease-in-out'
         });
         
         // stop dragging if the mouse leaves the screen
-        galleryElement.addEventListener('mouseleave', () => {
+        document.body.addEventListener('mouseleave', () => {
             isDragging = false;
         });
         
         // let go after grabbing
-        galleryElement.addEventListener('mouseup', () => {
+        document.body.addEventListener('mouseup', () => {
             isDragging = false;
             galleryElement.style.cursor = 'grab';
 
+            /*
             // code to center the middlest element of the gallery
             let middlestElement;
             let smallestDistance;
@@ -83,19 +84,26 @@ const createGallery = (id) => {
                 const itemMiddle = itemRect.left + itemRect.width / 2;
                 const middleX = window.innerWidth / 2;
                 const distanceToMiddle = Math.abs(middleX - itemMiddle);
+                console.log(`itemID: ${item.id} and distanceToMiddle: ${distanceToMiddle}`)
                 //console.log(`itemMiddle: ${itemMiddle} and middleX: ${middleX}`);
                 if (!middlestElement || distanceToMiddle < smallestDistance) {
                     smallestDistance = distanceToMiddle;
                     middlestElement = item;
                     distanceToOffset = middleX - itemMiddle;
                 }
-                else {
-                }
+                
             });
             // get left most position of galleryElement
             const galleryLeft = parseInt(galleryElement.style.left, 10);
             galleryElement.style.transition = 'left 0.5s ease-in-out'
             galleryElement.style.left = `${galleryLeft + distanceToOffset}px`;
+            if (galleryLeft + distanceToOffset > -250) { 
+                moveLastItemToStart();
+            }
+            if (galleryLeft + distanceToOffset + galleryElement.scrollWidth < window.innerWidth + 250) {
+                moveFirstItemToEnd();
+            } 
+            */
         });
         
         // move gallery while grabbing
