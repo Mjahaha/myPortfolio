@@ -13,7 +13,7 @@ const createGallery = (id) => {
     const galleryElement = document.getElementById(id)
     galleryElement.style.display = 'flex';
     galleryElement.style.position = 'relative';
-    galleryElement.style.left = '-500px'
+    galleryElement.style.left = '-50px'
     galleryElement.style.cursor = 'grab';
 
     // set up gallery item properties
@@ -113,32 +113,57 @@ const createGallery = (id) => {
             const x = event.pageX;
             const deltaX = (x - startX) * 1.4;
             galleryElement.style.left = startingLeft + deltaX + 'px';
-            darkenOuterElements();
+            darkenOuterElements(id);
             //console.log("left: " + galleryElement.getBoundingClientRect().left)
             //console.log("width: " + galleryElement.scrollWidth)
             //console.log("left + width: " + (galleryElement.getBoundingClientRect().left + galleryElement.scrollWidth))
             //console.log("windowInner: " + (window.innerWidth + 50))
             
             if (galleryElement.getBoundingClientRect().left > -250) { 
-                moveLastItemToStart();
+                moveLastItemToStart(id);
                 startX = event.pageX;
                 startingLeft = galleryElement.getBoundingClientRect().left;
 
             }
             if (galleryElement.getBoundingClientRect().left + galleryElement.scrollWidth < window.innerWidth + 50) {
-                moveFirstItemToEnd();
+                moveFirstItemToEnd(id);
                 startX = event.pageX;
                 startingLeft = galleryElement.getBoundingClientRect().left;
             } 
         });
+
+        // Add touch events alongside mouse events
+        galleryElement.addEventListener('touchstart', (event) => {
+            isDragging = true;
+            startX = event.touches[0].pageX; // Use the first touch point
+            startingLeft = parseInt(galleryElement.style.left, 10);
+            galleryElement.style.transition = 'left 0s ease-in-out';
+        }, {passive: true}); // Use passive listener to improve scrolling performance
+
+        document.body.addEventListener('touchend', () => {
+            isDragging = false;
+            galleryElement.style.cursor = 'grab';
+        }, {passive: true});
+
+        galleryElement.addEventListener('touchmove', (event) => {
+            if (!isDragging) return;
+            event.preventDefault(); // Prevent the browser from doing its default thing (scroll / zoom)
+            const x = event.touches[0].pageX;
+            const deltaX = (x - startX) * 1.4;
+            galleryElement.style.left = `${startingLeft + deltaX}px`;
+            darkenOuterElements(id);
+
+            // Your logic for moving items
+        }, {passive: false}); // Not passive since we're calling preventDefault()
+
     }
     addGrabbingEffect();
-    darkenOuterElements();
+    darkenOuterElements(id);
 }
 
 
-const darkenOuterElements = () => {
-    const galleryElement = document.getElementById('galleryOne');
+const darkenOuterElements = (galleryNumber) => {
+    const galleryElement = document.getElementById(galleryNumber);
     const galleryContentArray = Array.from(galleryElement.children);
     const middleX = window.innerWidth / 2;
 
@@ -168,9 +193,9 @@ const darkenOuterElements = () => {
     middlestElement.querySelector('.darkener').style.opacity = '0';
 }
 
-const moveFirstItemToEnd = () => {
+const moveFirstItemToEnd = (galleryNumber) => {
     console.log('moveFirstItemToEnd')
-    const galleryElement = document.getElementById('galleryOne');
+    const galleryElement = document.getElementById(galleryNumber);
     if (galleryElement.children.length > 1) {
         const firstItem = galleryElement.children[0];
         const itemWidth = firstItem.offsetWidth; // Width of the item
@@ -188,9 +213,9 @@ const moveFirstItemToEnd = () => {
     }
 };
 
-const moveLastItemToStart = () => {
+const moveLastItemToStart = (galleryNumber) => {
     console.log('moveLastItemToStart')
-    const galleryElement = document.getElementById('galleryOne');
+    const galleryElement = document.getElementById(galleryNumber);
     if (galleryElement.children.length > 1) {
         const lastItem = galleryElement.children[galleryElement.children.length - 1];
         const itemWidth = lastItem.offsetWidth; // Width of the item
@@ -209,4 +234,6 @@ const moveLastItemToStart = () => {
 };
 
 createGallery('galleryOne');
+createGallery('galleryTwo');
+
 
