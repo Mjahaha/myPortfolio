@@ -41,7 +41,8 @@ header {
     padding: 10px 0; /* Some padding to give it space */
     text-align: center; /* Centers the nav in the header */
     font-size: 18px; /* Larger font size for better readability */
-    /* background-color: #333; /* Dark background for a cool look */
+    z-index: 5;
+     background-color: #333; /* Dark background for a cool look */
 }
 
 #headerLogo {
@@ -56,6 +57,12 @@ header nav {
     align-items: center;
     margin-right: 80px;
 }
+
+header nav a {
+    color: inherit; /* Ensures the anchor text color matches its parent */
+    text-decoration: none; /* Optionally removes the underline */
+}
+
 
 /* This removes the default list styling */
 nav ul {
